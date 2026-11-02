@@ -1,0 +1,11 @@
+{
+  "name": "vast-agent-skills",
+  "owner": { "name": "Chris Snow" },
+  "plugins": [
+    {
+      "name": "vast-agent-skills",
+      "source": "./",
+      "description": "Skills for configuring, operating and building on VAST Data clusters, on any VAST release."
+    }
+  ]
+}
