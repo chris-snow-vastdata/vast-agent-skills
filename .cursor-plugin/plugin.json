@@ -2,7 +2,7 @@
   "name": "vast-agent-skills",
   "displayName": "VAST Agent Skills",
   "description": "Skills for configuring, operating and building on VAST Data clusters, on any VAST release.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Chris Snow"
   },

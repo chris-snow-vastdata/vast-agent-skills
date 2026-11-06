@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Check the skill against AUTHORING.md: front matter, sizes, links, and nothing sensitive.
+"""Check the skill against AUTHORING.md: front matter, sizes, links, release version, and nothing sensitive.
 
-    python3 scripts/validate.py            # exit 1 on any error
+    python3 scripts/validate.py                 # exit 1 on any error
+    python3 scripts/validate.py --tag v0.2.0    # also check the tag matches the release version
 """
+import json
 import re
 import sys
 from pathlib import Path
@@ -80,6 +82,41 @@ for f in ROOT.rglob("*"):
                     continue
                 line = t[:m.start()].count("\n") + 1
                 errors.append(f"{f.relative_to(ROOT)}:{line}: {what} {m.group(0)!r}")
+
+# Release version. Claude Code updates a plugin install only when its version changes, so both
+# manifests must carry the same version, each release must have a CHANGELOG entry, and the
+# marketplace entry must not set its own (Claude Code would silently prefer plugin.json's).
+SEMVER = r"\d+\.\d+\.\d+"
+versions = {}
+for manifest in (".claude-plugin/plugin.json", ".cursor-plugin/plugin.json"):
+    path = ROOT / manifest
+    if not path.exists():
+        errors.append(f"{manifest}: missing")
+        continue
+    v = json.loads(path.read_text()).get("version")
+    if not v or not re.fullmatch(SEMVER, v):
+        errors.append(f"{manifest}: version {v!r} is not MAJOR.MINOR.PATCH")
+    versions[manifest] = v
+if len(set(versions.values())) > 1:
+    errors.append(f"plugin manifests disagree on version: {versions}")
+market = ROOT / ".claude-plugin/marketplace.json"
+if market.exists():
+    for entry in json.loads(market.read_text()).get("plugins", []):
+        if "version" in entry:
+            errors.append(f".claude-plugin/marketplace.json: entry {entry.get('name')!r} sets version; "
+                          "keep it only in plugin.json")
+release = next(iter(versions.values()), None)
+changelog = ROOT / "CHANGELOG.md"
+if release:
+    if not changelog.exists():
+        errors.append("CHANGELOG.md: missing")
+    elif not re.search(rf"^## \[{re.escape(release)}\] - \d{{4}}-\d{{2}}-\d{{2}}$", changelog.read_text(), re.M):
+        errors.append(f"CHANGELOG.md: no '## [{release}] - YYYY-MM-DD' entry for the manifest version")
+if "--tag" in sys.argv:
+    i = sys.argv.index("--tag")
+    tag = sys.argv[i + 1] if i + 1 < len(sys.argv) else ""
+    if tag != f"v{release}":
+        errors.append(f"tag {tag!r} does not match the manifest version (expected 'v{release}')")
 
 for w in warnings:
     print("warning:", w)

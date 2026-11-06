@@ -106,6 +106,21 @@ Either run `./install.sh` (above), or install the skills as a plugin from this r
 Claude Code reads personal skills from `~/.claude/skills/` and project skills from `.claude/skills/`.
 Skills are picked up in new sessions. To check, ask "what VAST skills do you have?"
 
+A plugin install updates only when a new release changes the version: run
+`/plugin marketplace update vast-agent-skills`, or turn on auto-update for the marketplace under
+**Marketplaces** in `/plugin`.
+
+### Pin a release
+
+Releases are git tags (`v0.2.0`, ...); [CHANGELOG.md](CHANGELOG.md) says what each one changed.
+To stay on one release instead of following `main`:
+
+| Install path | Pinned form |
+|---|---|
+| Claude Code plugin | `/plugin marketplace add chris-snow-vastdata/vast-agent-skills#v0.2.0` |
+| Quick install | use `archive/refs/tags/v0.2.0.tar.gz` and `vast-agent-skills-0.2.0/skills/vast` in the `curl` command above |
+| From a clone | `git checkout v0.2.0 && ./install.sh --copy` (copies, so a later `git pull` doesn't move you) |
+
 ### Cursor
 
 Run `./install.sh`. Cursor reads `~/.agents/skills/` and `~/.cursor/skills/` (user) and

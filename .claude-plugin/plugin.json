@@ -1,7 +1,7 @@
 {
   "name": "vast-agent-skills",
   "description": "Skills for configuring, operating and building on VAST Data clusters through the VMS REST API, the VAST knowledge base and public VAST tools, on any VAST release.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Chris Snow"
   },

@@ -76,4 +76,29 @@ against and how (spec read, KB read, live read-only calls, live end-to-end run).
 `python3 scripts/validate.py` checks the front matter, sizes and links, and fails on anything
 that looks sensitive: IP addresses, email addresses, keys, tokens, local paths. Put strings
 specific to your own environment (lab hostnames, logins) in `.validate-local`, one regex per
-line; that file is gitignored so it is never published.
+line; that file is gitignored so it is never published. It also checks the release version (below).
+
+## Releasing
+
+A release is a version bump plus an annotated tag. **Bump the version on every release that
+should reach users**: Claude Code keeps a plugin install on its cached copy until the `version`
+string changes, so commits pushed without a bump never reach plugin users.
+
+1. Pick the version (semver): PATCH for corrections, MINOR for new guidance or helper features,
+   MAJOR for a change that breaks how people install or call the helpers.
+2. Set it in **both** `.claude-plugin/plugin.json` and `.cursor-plugin/plugin.json`. Don't add a
+   `version` to `.claude-plugin/marketplace.json`: Claude Code silently prefers `plugin.json`'s.
+3. Add `## [X.Y.Z] - YYYY-MM-DD` at the top of `CHANGELOG.md`, saying what changed for users.
+4. Check, commit, tag and push:
+
+   ```bash
+   python3 scripts/validate.py --tag vX.Y.Z
+   git commit -am "Release vX.Y.Z"
+   git tag -a vX.Y.Z -m "vX.Y.Z"
+   git push origin main vX.Y.Z
+   ```
+
+5. Publish the release notes from the changelog entry, with `gh release create vX.Y.Z --notes-file <entry>`
+   or the GitHub web UI.
+
+Never move or delete a published tag: people pin to it.
