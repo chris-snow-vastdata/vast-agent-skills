@@ -54,15 +54,28 @@ cover the cluster side and point to it.
 
 ### Quick install without cloning
 
-Download just the skill into the cross-agent folder (read by Codex, Cursor and others):
+Download the latest release of just the skill into the cross-agent folder (read by Codex, Cursor
+and others). The command asks GitHub for the newest release tag, removes any previous copy so no
+stale files are left behind, and prints the version it installed:
 
 ```bash
-mkdir -p ~/.agents/skills && curl -fsSL https://github.com/chris-snow-vastdata/vast-agent-skills/archive/refs/heads/main.tar.gz \
-  | tar -xz -C ~/.agents/skills --strip-components=2 vast-agent-skills-main/skills/vast
+DIR=~/.agents/skills
+TAG=$(curl -fsSL https://api.github.com/repos/chris-snow-vastdata/vast-agent-skills/releases/latest \
+  | python3 -c 'import json,sys; print(json.load(sys.stdin)["tag_name"])') \
+  && rm -rf "$DIR/vast" && mkdir -p "$DIR" \
+  && curl -fsSL "https://github.com/chris-snow-vastdata/vast-agent-skills/archive/refs/tags/$TAG.tar.gz" \
+  | tar -xz -C "$DIR" --strip-components=2 "vast-agent-skills-${TAG#v}/skills/vast" \
+  && echo "installed $TAG"
 ```
 
-For Claude Code, run the same command with `~/.claude/skills` in place of `~/.agents/skills` (or
-run it for both). To update, delete the `vast` folder and run it again.
+For Claude Code, set `DIR=~/.claude/skills` (or run it once for each). Run it again to update.
+
+To follow `main` instead, including changes not yet released:
+
+```bash
+rm -rf ~/.agents/skills/vast && mkdir -p ~/.agents/skills && curl -fsSL https://github.com/chris-snow-vastdata/vast-agent-skills/archive/refs/heads/main.tar.gz \
+  | tar -xz -C ~/.agents/skills --strip-components=2 vast-agent-skills-main/skills/vast
+```
 
 Alternatively, the [`skills` CLI](https://github.com/vercel-labs/skills) installs into many agents at
 once (it asks which; `-g` installs for your user rather than the current project):
@@ -118,7 +131,7 @@ To stay on one release instead of following `main`:
 | Install path | Pinned form |
 |---|---|
 | Claude Code plugin | `/plugin marketplace add chris-snow-vastdata/vast-agent-skills#v0.2.0` |
-| Quick install | use `archive/refs/tags/v0.2.0.tar.gz` and `vast-agent-skills-0.2.0/skills/vast` in the `curl` command above |
+| Quick install | in the quick-install command, replace the `TAG=$(curl ...)` lookup with `TAG=v0.2.0` |
 | From a clone | `git checkout v0.2.0 && ./install.sh --copy` (copies, so a later `git pull` doesn't move you) |
 
 ### Cursor
