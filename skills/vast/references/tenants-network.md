@@ -296,7 +296,8 @@ Work top-down; each step is read-only.
 | VLAN-tagged pool unreachable | VLAN not created/allowed on cluster switches and uplinks | Switch configuration per KB "Tagging Virtual IP Pools with VLANs" |
 | FQDN doesn't resolve | No DNS service, pool `domain_name` empty, or corporate DNS has no delegation | Workflow 3 |
 | Tenant admin can't see VIP pools | By design: tenant admins have no VIP pool access | Cluster admin manages pools |
-| Role values from older docs rejected | VIP pool roles vary by release (KB 5.5 CLI: `PROTOCOLS`, `REPLICATION`; older pages: `VAST_CATALOG`; Terraform docs: `BIG_CATALOG`; UI 5.5: "Query Engine") | Use the KB `vippool create` page for the cluster's release and existing pools |
+| Role values from older docs rejected | VIP pool roles vary by release (KB 5.5 CLI: `PROTOCOLS`, `REPLICATION`; older pages: `VAST_CATALOG`; Terraform docs: `BIG_CATALOG`; UI 5.5: "Query Engine"; API on 5.4.6: `QUERY_ENGINE_CNODE_GROUP` for the Query Engine pool) | Use the KB `vippool create` page for the cluster's release and existing pools |
+| Pool create or PATCH rejected with one CNode | VMS rejects a VIP pool bound to fewer than two CNodes *(seen on 5.4 and 5.5)* | Bind at least two CNodes |
 
 ## Destructive operations (warn first, next to the call)
 

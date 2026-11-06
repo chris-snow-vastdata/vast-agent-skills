@@ -26,6 +26,18 @@ export VMS_CERT_FILE=/path/ca.pem       # or VMS_INSECURE=1 for a self-signed la
 Ask the user for the address and a login; never guess credentials. Prefer an API token for
 anything long-running.
 
+**Keep the password out of the conversation.** Don't ask the user to paste it, and don't type it
+into a command or file yourself. Have the user store it once, in a file only they can read, with
+nothing echoed or kept in shell history:
+
+```bash
+umask 077; read -rs -p "VMS password: " P; printf 'VMS_PASSWORD=%s\n' "$P" > ~/.vms.env; unset P
+```
+
+Then load it for each run without reading it, `set -a; . ~/.vms.env; set +a; scripts/vast_api.py ...`,
+and ask the user to delete the file when the work is done. Treat a generated secret key the same
+way: write it straight to a 0600 file and report only that it was written.
+
 | Step | Command |
 |---|---|
 | Which release? | `vast_api.py version` |
@@ -93,7 +105,9 @@ right, not that the call is wrong: tell the user which realm it needs.
   "Enforced Pagination"). Follow `next` until it is null. `fields=a,b` trims the response.
 - **Filters**: most lists filter by field (`views/?path=/data`, `?tenant_id=3`, `?name=x`);
   check with `spec show <path> get`. Filter results again client-side if exactness matters
-  (some filters are prefix or substring matches).
+  (some filters are prefix or substring matches). A filter a list doesn't support is ignored,
+  and the call returns every row *(seen on 5.5.0)*. So always re-check the rows yourself before
+  acting on one, and above all before a delete.
 - **Objects are referenced by `id`** in most calls (e.g. `policy_id`, `tenant_id`), by name in
   some; `spec model` shows which.
 - **Async work**: long operations (compute clusters, replication, upgrades, some deletes) run as

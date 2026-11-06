@@ -301,6 +301,9 @@ encryption at rest and EKM, encryption-group key rotation/deactivation/revocatio
 13. Tenant admin cannot add an identity provider or see VIP pools -> by design (KB "Cluster and
     Tenant Admins"): a cluster admin does it.
 14. Lost secret key -> cannot be shown again (KB) -> create a new pair, delete the old one.
+15. `POST /users/` -> `400 {"local_provider_id": ["This field is required."]}` *(seen on 5.4.6, `/api/latest`)*
+    -> the versioned API needs the provider, which an unversioned `/api/` call did not ->
+    read it from `get tenants/<t> fields=local_provider_id` and send it (workflow 1, step 4).
 
 ## Related areas
 
